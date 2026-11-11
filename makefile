@@ -1,5 +1,5 @@
 build:
-	gcc -o bin/rc main.c
+	gcc -Wall -Wextra -o bin/rc main.c
 
 run: build
 	./bin/rc
