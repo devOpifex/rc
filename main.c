@@ -94,5 +94,13 @@ int main(int argc, char *argv[])
     return 0;
   }
 
+  int success = file_exists(config_path);
+
+  if(success < 1) {
+    return 1;
+  }
+
+  printf("Proceed\n");
+
   return 0;
 }
