@@ -5,6 +5,47 @@
 #include <string.h>
 #include <unistd.h>
 
+struct Cmd {
+  char *shortcut;
+  char *command;
+  struct Cmd *next;
+};
+
+static char *copy_string(const char *str) 
+{
+  size_t len = strlen(str);
+  char *copy = malloc(len);
+
+  if(copy == NULL) {
+    perror("malloc");
+    return "999";
+  }
+
+  memcpy(copy, str, len);
+  return copy;
+}
+
+struct Cmd *create_cmd(char *shortcut, char *command) 
+{
+  struct Cmd *c = malloc(sizeof(struct Cmd));
+
+  if(c == NULL) {
+    fprintf(stderr, "Could not allocate...\n");
+    return c;
+  }
+
+  c->shortcut = copy_string(shortcut);
+  c->command = copy_string(command);
+  return c;
+}
+
+void prepend_cmd(struct Cmd **head, char *shortcut, char *command)
+{
+  struct Cmd *c = create_cmd(shortcut, command);
+  c->next = *head;
+  *head = c;
+}
+
 int set_home_dir(char *path) 
 {
   char *home = getenv("HOME");
@@ -16,7 +57,8 @@ int set_home_dir(char *path)
   return -1;
 }
 
-int template_config(char *config_path) {
+int template_config(char *config_path) 
+{
   FILE *fl = fopen(config_path, "w");
   if(fl == NULL){
     fprintf(stderr, "Failed to write to %s\n", config_path);
@@ -97,6 +139,7 @@ int main(int argc, char *argv[])
   int success = file_exists(config_path);
 
   if(success < 1) {
+    fprintf(stderr, "Config file not found, run `r config`\n");
     return 1;
   }
 
