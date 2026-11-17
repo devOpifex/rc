@@ -46,6 +46,25 @@ void prepend_cmd(struct Cmd **head, char *shortcut, char *command)
   *head = c;
 }
 
+int print_config(char *path)
+{
+  FILE *f = fopen(path, "r");
+
+  if(f == NULL){
+    perror("fopen");
+    return 1;
+  }
+
+  char line[1028];
+  while(fgets(line, sizeof line, f) != NULL){
+    printf("%s", line);
+  }
+  
+  fclose(f);
+
+  return 0;
+}
+
 int parse_config(struct Cmd **head, char *path)
 {
   FILE *f = fopen(path, "r");
@@ -169,26 +188,28 @@ int main(int argc, char *argv[])
   }
 
   // check if config flag
-  if(argc > 1) {
-    int cmp = strcmp(argv[1], "config");
+  if(argc < 2) {
+    fprintf(stderr, "No arguments, need -config, -commands, or space separated commands.\n");
+    return 1;
+  }
 
-    // unsupported - we only have config right now
-    if(cmp == 0) {
-      int exists = file_exists(config_path);
-      if(exists > 0) {
-        printf("The config file already exists remove `%s` and try again\n", config_path);
-        return 0;
-      }
+  int cmp_config = strcmp(argv[1], "-config");
 
-      int success = template_config(config_path);
-
-      if(success < 1) {
-        return 1;
-      }
-
-      printf("Config `%s` created\n", config_path);
+  if(cmp_config == 0) {
+    int exists = file_exists(config_path);
+    if(exists > 0) {
+      printf("The config file already exists remove `%s` and try again\n", config_path);
       return 0;
     }
+
+    int success = template_config(config_path);
+
+    if(success < 1) {
+      return 1;
+    }
+
+    printf("Config `%s` created\n", config_path);
+    return 0;
   }
 
   int success = file_exists(config_path);
@@ -198,6 +219,14 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+
+  int cmp_commands = strcmp(argv[1], "-commands");
+
+  if(cmp_commands == 0){
+    print_config(config_path);
+    return 0;
+  }
+
   struct Cmd *head = NULL;
   int parsed = parse_config(&head, config_path);
   if(parsed > 0) {
@@ -205,15 +234,8 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  if(argc < 2) {
-    fprintf(stderr, "No shortcuts passed, expecting r <shortcut> <shortcut> ... or r config\n");
-    return 1;
-  }
-
   for(int i = 1; i < argc; i++){
     struct Cmd *command = get_cmd(head, argv[i]);
-
-    printf("Running command %s from %s\n", command->command, argv[i]);
 
     if(command == NULL){
       fprintf(stderr, "Could not find shortcut `%s` in %s\n", argv[i], config_path);
