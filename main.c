@@ -199,7 +199,8 @@ int main(int argc, char *argv[])
 
   // check if config flag
   if(argc < 2) {
-    fprintf(stderr, "No arguments, need -config, -commands, or space separated commands.\n");
+    fprintf(stderr, "No arguments\n");
+    print_help();
     return 1;
   }
 
