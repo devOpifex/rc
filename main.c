@@ -164,6 +164,16 @@ int exec_command(char *command)
   return pclose(e);
 }
 
+void print_help()
+{
+  printf("r creates R shortcuts\n\n");
+  printf("Usage:\n \tr <command> <command>\n\n");
+  printf("Commands:\n\n");
+  printf("\t-commands \tlist of commands\n");
+  printf("\t-config \tcreate example config at $HOME/.r\n");
+  printf("\t<command> \tyour custom commands\n");
+}
+
 int main(int argc, char *argv[])
 {
   // get home directory
@@ -191,6 +201,13 @@ int main(int argc, char *argv[])
   if(argc < 2) {
     fprintf(stderr, "No arguments, need -config, -commands, or space separated commands.\n");
     return 1;
+  }
+
+  int cmp_help = strcmp(argv[1], "-help");
+
+  if(cmp_help == 0){
+    print_help();
+    return 0;
   }
 
   int cmp_config = strcmp(argv[1], "-config");
