@@ -164,9 +164,11 @@ int exec_command(char *command)
   return pclose(e);
 }
 
-void print_help()
+void print_help(int header)
 {
-  printf("r creates R shortcuts\n\n");
+  if(header == 1) {
+    printf("r creates R shortcuts\n\n");
+  }
   printf("Usage:\n \tr <command> <command>\n\n");
   printf("Commands:\n\n");
   printf("\t-commands \tlist of commands\n");
@@ -199,15 +201,15 @@ int main(int argc, char *argv[])
 
   // check if config flag
   if(argc < 2) {
-    fprintf(stderr, "No arguments\n");
-    print_help();
+    fprintf(stderr, "No arguments\n\n");
+    print_help(0);
     return 1;
   }
 
   int cmp_help = strcmp(argv[1], "-help");
 
   if(cmp_help == 0){
-    print_help();
+    print_help(1);
     return 0;
   }
 
