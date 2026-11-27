@@ -147,24 +147,19 @@ struct Cmd *get_cmd(struct Cmd *head, const char *shortcut)
 
 char *escape_quotes(char *command)
 {
-  int l = strlen(command);
-  char *new = malloc(l);
+  size_t l = strlen(command);
+  char *new = malloc(l * 4 + 1);
+  if (!new) return NULL;
 
-  int new_i = 0;
-
-  for(int i = 0; i < l; ++i) {
-    new_i++;
-    if(command[i] == '"'){
-      new[new_i] = command[i];
-      continue;
+  size_t new_i = 0;
+  for (size_t i = 0; i < l; ++i) {
+    if (command[i] == '\'') {
+      memcpy(new + new_i, "'\\''", 4);
+      new_i += 4;
+    } else {
+      new[new_i++] = command[i];
     }
-
-    new[new_i] = '\\';
-    new_i++;
-    new[new_i] = '"';
   }
-
-  new_i++;
   new[new_i] = '\0';
 
   return new;
