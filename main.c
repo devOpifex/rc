@@ -145,10 +145,37 @@ struct Cmd *get_cmd(struct Cmd *head, const char *shortcut)
   return NULL;
 }
 
+char *escape_quotes(char *command)
+{
+  int l = strlen(command);
+  char *new = malloc(l);
+
+  int new_i = 0;
+
+  for(int i = 0; i < l; ++i) {
+    new_i++;
+    if(command[i] == '"'){
+      new[new_i] = command[i];
+      continue;
+    }
+
+    new[new_i] = '\\';
+    new_i++;
+    new[new_i] = '"';
+  }
+
+  new_i++;
+  new[new_i] = '\0';
+
+  return new;
+}
+
 int exec_command(char *command) 
 {
   char str[1028];
-  snprintf(str, sizeof str, "Rscript -e '%s'", command);
+  char *command_escaped = escape_quotes(command);
+  snprintf(str, sizeof str, "Rscript -e '%s'", command_escaped);
+  free(command_escaped);
 
   FILE *e = popen(str, "r");
   if(!e){
